@@ -44,12 +44,12 @@
 
 - name: Copy over sqlnet.ora
   copy:
-    src: ../files/sqlnet.ora
+    src: "{{ sqlnet_path }}"
     dest: "{{ instantclient_oracle_home }}/network/admin"
     mode: 0766
 
 - name: Inject tnsnames.ora with data source listings
   copy:
-    src: ../files/tnsnames.ora
+    src: "{{ tnsnames_path }}"
     dest: "{{ instantclient_oracle_home }}/network/admin"
     mode: 0766

@@ -1,0 +1,9 @@
+instantclient_user: root
+
+instantclient_version: "12.2"
+
+instantclient_oracle_package_src: "/installers/oracle"
+instantclient_oracle_package_dest: "/opt/oracle_packages"
+
+instantclient_oracle_lib: "/usr/lib/oracle/{{ instantclient_version }}/client64/lib/"
+instantclient_oracle_home: "/usr/lib/oracle/{{ instantclient_version }}/client64"

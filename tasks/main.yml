@@ -1,0 +1,55 @@
+---
+
+- name: Install libaio1
+  apt: 
+    name: libaio1
+    state: present
+    update_cache: yes
+
+- name: Create Oracle package directory
+  file: path={{ instantclient_oracle_package_dest }} state=directory
+
+- name: Copy oracle packages
+  copy: "src={{ instantclient_oracle_package_src }}/{{ item.rpm_name }}
+        dest={{ instantclient_oracle_package_dest }}/{{ item.rpm_name }}"
+  when: item.url is not defined
+  with_items: "{{ instantclient_oracle_packages }}"
+
+- name: Make sure alien is installed
+  apt:
+    name: alien 
+    state: installed
+    update_cache: yes
+
+- name: Convert RPMs to DEB with alien
+  shell: "alien {{ instantclient_oracle_package_dest }}/{{ item.rpm_name }}"
+  args:
+    chdir: "{{ instantclient_oracle_package_dest }}"
+    creates: "{{ instantclient_oracle_package_dest }}/{{ item.deb_name }}"
+  with_items: "{{ instantclient_oracle_packages }}"
+
+- name: Install oracle packages with apt
+  apt: "deb={{ instantclient_oracle_package_dest }}/{{ item.deb_name }}"
+  with_items: "{{ instantclient_oracle_packages }}"
+
+- name: Create /etc/ld.so.conf.d/oracle.conf
+  copy: content={{ instantclient_oracle_lib }} dest=/etc/ld.so.conf.d/oracle.conf
+  notify: Run ldconfig
+
+- name: Create network directory
+  file: path="{{ instantclient_oracle_home }}/network" state=directory
+
+- name: Create admin directory
+  file: path="{{ instantclient_oracle_home }}/network/admin" state=directory
+
+- name: Copy over sqlnet.ora
+  copy:
+    src: ../files/sqlnet.ora
+    dest: "{{ instantclient_oracle_home }}/network/admin"
+    mode: 0766
+
+- name: Inject tnsnames.ora with data source listings
+  copy:
+    src: ../files/tnsnames.ora
+    dest: "{{ instantclient_oracle_home }}/network/admin"
+    mode: 0766

@@ -1,0 +1,3 @@
+---
+from: 'debian:jessie'
+user: '{{ instantclient_user }}'
